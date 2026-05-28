@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Online Safety Campaign</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<?php
+include('dbconnect.php');
+if (isset($_POST['btnSubmit'])) {
+  $title = $_POST['title'];
+  $des = $_POST['des'];
+  $info = $_POST['info'];
+
+  $sql = "INSERT INTO services (title, description, info ) VALUES ('$title', '$des', '$info')";
+  if ($conn->query($sql) == TRUE) {
+    echo " Insert service successfully ";
+    header("location:servicesSetup.php");
+  }
+}
+
+if (isset(($_GET['editid']))) {
+  $editid = $_GET['editid'];
+  $sql = "SELECT * FROM services WHERE id='$editid'";
+  $result = $conn->query($sql);
+  $row = $result->fetch_assoc();
+} else {
+  $sql = "SELECT * FROM services";
+  $result = $conn->query($sql);
+}
+
+if (isset($_POST['btnUpdate'])) {
+  $id = $_POST['id'];
+  $title = $_POST['title'];
+  $des = $_POST['des'];
+  $info = $_POST['info'];
+
+  $sql = "UPDATE services SET title='$title',description='$des',info='$info' WHERE id='$id'";
+
+  if ($conn->query($sql)) {
+    echo " Update successful ";
+    header("location:servicesSetup.php");
+  }
+}
+
+if (isset(($_GET['deleteid']))) {
+  $delid = $_GET['deleteid'];
+  $sql = "DELETE FROM services WHERE id=$delid;";
+
+  if ($conn->query($sql) == TRUE) {
+    echo " Deleting service successful ";
+    header("location:servicesSetup.php");
+  }
+}
+
+if (isset($_POST['btnCancel'])) {
+  header("location:servicesSetup.php");
+}
+$sql1 = "SELECT * from services";
+$result = $conn->query($sql1);
+?>
+
+<body>
+  <nav>
+    <ul>
+      <li class="link"><a href="adminhome.php">Home</a></li>
+      <li class="link"><a href="servicesSetup.php">Services</a></li>
+      <li class="link"><a href="newsletterSetup.php">NewsLetter</a></li>
+      <li class="link"><a href="howparenthelpSetup.php">HowParentHelp</a></li>
+      <li class="link"><a href="socialmediaappSetup.php">SocialMediaApps</a></li>
+      <li class="link"><a href="contactList.php">Help/Support</a></li>
+      <li class="link"><a href="MemberList.php">MemberList</a></li>
+      <li class="link"><a href="logout.php">Logout</a></li>
+    </ul>
+
+  </nav>
+  <header>
+    <h1>Services Set up</h1>
+    <!-- Custom Cursors and 3D Illustrations can be added here -->
+  </header>
+
+  <main>
+    <section id="contact">
+      <div class="admin-form">
+        <h2>New Service Form</h2>
+        <!-- Contact Form -->
+        <form action="#" method="POST">
+
+          <input type="hidden" id="id" name="id" value="<?php echo isset($row['id']) ?  $row['id'] : "" ?>" <?php ?>">
+          <label for="name">Title:</label>
+          <input type="text" id="title" name="title" value="<?php echo isset($row['title']) ?  $row['title'] : '' ?>" required />
+
+          <label for="des">Description:</label>
+          <textarea id="des" name="des" rows="4" required><?php echo isset($row['description']) ?  $row['description'] : '' ?></textarea>
+
+          <label for="info">Info:</label>
+          <textarea id="info" name="info" rows="4" required><?php echo isset($row['info']) ?  $row['info'] : '' ?></textarea>
+          <?php
+          if (isset($_GET['editid'])) {
+          ?>
+            <button type="submit" name="btnUpdate">Update</button>
+          <?php } else { ?>
+            <button type="submit" name="btnSubmit">Save</button>
+          <?php } ?>
+        </form>
+        <form action="#" method="post" class="cancel-form">
+          <button type="submit" name="btnCancel" class="cancel-btn">Cancel</button>
+        </form>
+      </div>
+      <div class="data-table">
+        <?php
+        if ($result->num_rows > 0) {
+        ?>
+          <h2> Services List </h2>
+          <table>
+            <thead>
+              <tr>
+                <th class="table-id-col">Id</th>
+                <th class="table-title-col">Title</th>
+                <th class="table-description-col">Description</th>
+                <th class="table-info-col">Information</th>
+                <th class="table-publishdate-col">Created Date</th>
+                <th class="table-action-col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php
+              while ($row = $result->fetch_assoc()) {
+              ?>
+
+                <tr>
+                  <td class="table-id-col"><?php echo $row['id']; ?></td>
+                  <td class="table-title-col"><?php echo $row['title']; ?></td>
+                  <td class="table-description-col"><?php echo $row['description']; ?></td>
+                  <td class="table-info-col"><?php echo $row['info']; ?></td>
+                  <td class="table-publishdate-col"><?php echo $row['createdat']; ?></td>
+                  <td class="table-action-col">
+                    <a type=" button" class="btn btn-warning" href="servicesSetup.php?editid=<?php echo $row['id'] ?>"> Edit </a>
+
+                    <a type="button" class="btn btn-danger" href="servicesSetup.php?deleteid=<?php echo $row['id'] ?>">Delete</a>
+                  </td>
+                </tr>
+              <?php
+              }
+              ?>
+          </table>
+        <?php
+        } else {
+          echo " There is no data";
+        }
+        ?>
+        </tbody>
+
+      </div>
+
+
+    </section>
+  </main>
+
+  <footer>
+    <p>You are here: Services Setup</p>
+    <div class="footer-content">
+      <p>&copy; 2024 Online Safety Campaign</p>
+      <a href="twitter.com" class="footer-a">Twitter</a>
+      <a href="instagram.com" class="footer-a">Instagram</a>
+      <a href="facebook.com" class="footer-a">Facebook</a>
+    </div>
+  </footer>
+</body>
+
+</html>
